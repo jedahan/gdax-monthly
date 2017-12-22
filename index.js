@@ -1,6 +1,5 @@
 // yarn install gdax && node index.js
 
-const util = require('util')
 const Gdax = require('gdax')
 const gdax = new Gdax.PublicClient('ETH-USD')
 

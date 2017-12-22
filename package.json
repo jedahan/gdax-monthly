@@ -1,11 +1,9 @@
 {
-  "name": "test-api",
-  "version": "1.0.0",
+  "name": "gdax-monthly",
+  "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "cryptocompare": "^0.3.0",
-    "gdax": "^0.4.2",
-    "node-fetch": "^1.7.3"
+    "gdax": "^0.4.2"
   }
 }
