@@ -1,34 +1,35 @@
-global.fetch = require('node-fetch')
-const cc = require('cryptocompare')
+// yarn install gdax && node index.js
 
-function getAveragePriceForMonth(year, month) {
-  return new Promise((resolve, reject) => {
-    cc
-      .histoDay('ETH', 'USD', { timestamp: new Date(`${year}-${(month+1)}-1`) })
-      .then(prices => {
-          resolve(prices
-            .map(price => price.close)
-            .reduce((sum, price) => { return sum + price }, 0)
-            / prices.length)
-        })
-      })
-}
-
-getAveragePriceForMonth(2017, 10).then(average => console.log(`October: ${average}`))
-getAveragePriceForMonth(2017, 11).then(average => console.log(`November: ${average}`))
-
+const util = require('util')
 const Gdax = require('gdax')
 const gdax = new Gdax.PublicClient('ETH-USD')
 
 function getAveragePriceForMonthCoinbase(year, month) {
+  // lol december is 11, january is 0
+  if (month === 12) {
+    next_month = new Date(year + 1, 0, 1)
+  } else {
+    next_month = new Date(year, month, 1)
+  }
+
+  month = new Date(year, month-1, 1)
+  if (next_month > new Date()) next_month = new Date()
+
   return new Promise((resolve, reject) => {
+    const options = {
+      granularity: 60 * 60 * 24,
+      start: month.toISOString().split('T')[0],
+      end: next_month.toISOString().split('T')[0]
+    }
+
     gdax
-      .getProductHistoricRates({granularity: 60 * 60 * 24, start: `${year}-${month}-1`, end: `${year}-${(month+1)}-1`},
+      .getProductHistoricRates(options,
         (err, response) => {
-          const days = JSON.parse(response.body).length
-          const prices = JSON.parse(response.body)[0]
+          const prices = JSON.parse(response.body)
+          const days = prices.length
+          console.log(`found ${days} days...`)
           resolve(prices
-            .map(price => prices[3])
+            .map(price => price[3])
             .reduce((sum, price) => { return sum + price }, 0)
             / prices.length
           )
@@ -38,3 +39,4 @@ function getAveragePriceForMonthCoinbase(year, month) {
 }
 
 getAveragePriceForMonthCoinbase(2017, 11).then(average => console.log(`GDAX ETH-USD November: ${average}`))
+getAveragePriceForMonthCoinbase(2017, 12).then(average => console.log(`GDAX ETH-USD December: ${average}`))
